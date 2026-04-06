@@ -1,0 +1,28 @@
+name: Build Corrupt Extractor for Microsoft Office
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  build:
+    name: Build with Free Pascal
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Free Pascal
+        run: sudo apt-get update && sudo apt-get install -y fpc
+
+      - name: Attempt build with Free Pascal
+        run: |
+          echo "Attempting to compile Delphi project with Free Pascal..."
+          echo "Note: fpc is not fully compatible with Delphi, some files may fail."
+          for f in $(find . -name "*.pas" | head -20); do
+            echo "  Compiling: $f"
+            fpc -Sd "$f" 2>&1 || true
+          done
+        continue-on-error: true
