@@ -1,5 +1,10 @@
 # Corrupt Extractor for Microsoft Office
 
+<!--PAGES_LINK_BANNER-->
+> 🌐 **Live page:** [https://socrtwo.github.io/crrptoffcxtrctr-SF/](https://socrtwo.github.io/crrptoffcxtrctr-SF/)  
+> 📦 **Releases:** [github.com/socrtwo/crrptoffcxtrctr-SF/releases](https://github.com/socrtwo/crrptoffcxtrctr-SF/releases)
+<!--/PAGES_LINK_BANNER-->
+
 Extracts text and data from corrupt DOCX, XLSX, and PPTX files. Advanced mode can fix zip structure, recover embedded images, and edit corrupt XML directly.
 
 ## Screenshots
