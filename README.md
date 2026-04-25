@@ -1,9 +1,18 @@
-# Corrupt Extractor for Microsoft Office
+<!--MODERNIZED:v1-->
+# Crrptoffcxtrctr
 
-<!--PAGES_LINK_BANNER-->
-> 🌐 **Live page:** [https://socrtwo.github.io/crrptoffcxtrctr-SF/](https://socrtwo.github.io/crrptoffcxtrctr-SF/)  
-> 📦 **Releases:** [github.com/socrtwo/crrptoffcxtrctr-SF/releases](https://github.com/socrtwo/crrptoffcxtrctr-SF/releases)
-<!--/PAGES_LINK_BANNER-->
+> Migrated from SourceForge via SF2GH Migrator
+
+[![Live page](https://img.shields.io/badge/live-page-ff2e93?style=for-the-badge)](https://socrtwo.github.io/crrptoffcxtrctr-SF/)
+[![Releases](https://img.shields.io/github/v/release/socrtwo/crrptoffcxtrctr-SF?style=for-the-badge&color=7c3aed)](https://github.com/socrtwo/crrptoffcxtrctr-SF/releases)
+[![License](https://img.shields.io/github/license/socrtwo/crrptoffcxtrctr-SF?style=for-the-badge&color=22d3ee)](https://github.com/socrtwo/crrptoffcxtrctr-SF/blob/main/LICENSE)
+[![Last commit](https://img.shields.io/github/last-commit/socrtwo/crrptoffcxtrctr-SF?style=for-the-badge&color=34d399)](https://github.com/socrtwo/crrptoffcxtrctr-SF/commits)
+
+🌐 **Live:** https://socrtwo.github.io/crrptoffcxtrctr-SF/  
+📦 **Downloads:** [Releases](https://github.com/socrtwo/crrptoffcxtrctr-SF/releases)  
+📂 **Source:** [socrtwo/crrptoffcxtrctr-SF](https://github.com/socrtwo/crrptoffcxtrctr-SF)
+
+---
 
 Extracts text and data from corrupt DOCX, XLSX, and PPTX files. Advanced mode can fix zip structure, recover embedded images, and edit corrupt XML directly.
 
@@ -68,3 +77,25 @@ Contributions are welcome! Feel free to:
 ## License
 
 MIT License — see [LICENSE](LICENSE) for details.
+
+---
+
+## 📜 SourceForge heritage
+
+This project originated on **SourceForge** before being migrated to GitHub. The legacy SourceForge entry, if still available, can be searched at:
+
+🔗 https://sourceforge.net/projects/crrptoffcxtrctr/
+
+The repository here at `socrtwo/crrptoffcxtrctr-SF` is the canonical, actively-maintained home. All future updates, issue tracking, and releases happen on GitHub.
+
+## 🛠️ Contributing
+
+Issues and pull requests are welcome at [https://github.com/socrtwo/crrptoffcxtrctr-SF/issues](https://github.com/socrtwo/crrptoffcxtrctr-SF/issues).
+
+## 📝 License
+
+See the [LICENSE](https://github.com/socrtwo/crrptoffcxtrctr-SF/blob/main/LICENSE) file in this repository. If no license file is present, the project is shared as-is for reference and personal use; please contact the maintainer for other use cases.
+
+---
+
+*Maintained by [@socrtwo](https://github.com/socrtwo)*
