@@ -1,0 +1,8 @@
+{
+  "appId": "com.socrtwo.crrptoffcxtrctr",
+  "appName": "Corrupt Office Extractor",
+  "webDir": "www",
+  "server": {
+    "androidScheme": "https"
+  }
+}
