@@ -1,0 +1,26 @@
+{
+  "name": "crrptoffcxtrctr",
+  "version": "2.0.0",
+  "private": true,
+  "description": "Cross-platform extractor for corrupt DOCX/XLSX/PPTX files",
+  "license": "MIT",
+  "workspaces": [
+    "core",
+    "web-app",
+    "desktop",
+    "mobile"
+  ],
+  "scripts": {
+    "build:core": "npm run build -w core",
+    "build:web": "npm run build -w web-app",
+    "build:desktop": "npm run build -w desktop",
+    "build:mobile": "npm run build -w mobile",
+    "test": "npm test -w core",
+    "fixtures": "node scripts/make-fixtures.mjs"
+  },
+  "devDependencies": {
+    "playwright": "^1.59.1",
+    "typescript": "^5.6.3",
+    "vitest": "^2.1.5"
+  }
+}
