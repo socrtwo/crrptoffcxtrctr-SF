@@ -7,13 +7,12 @@
   "workspaces": [
     "core",
     "web-app",
-    "desktop",
     "mobile"
   ],
   "scripts": {
     "build:core": "npm run build -w core",
     "build:web": "npm run build -w web-app",
-    "build:desktop": "npm run build -w desktop",
+    "build:desktop": "cd desktop && npm install --no-audit --no-fund && npm run build",
     "build:mobile": "npm run build -w mobile",
     "test": "npm test -w core",
     "fixtures": "node scripts/make-fixtures.mjs"

@@ -41,16 +41,22 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with: { node-version: "20" }
-      - run: npm ci --include=dev
-      - name: Verify electron is installed
-        run: ls node_modules/electron/dist/version || (cd desktop && npm install --no-save electron@33.4.11)
+      - run: npm ci
       - run: npm run fixtures
       - run: npm run build:core
       - run: npm run build:web
+      - name: Install desktop deps (standalone, not workspace)
+        working-directory: desktop
+        run: npm install --no-audit --no-fund
+      - name: Prepare renderer
+        working-directory: desktop
+        run: npm run prepare-renderer
       - name: Build Electron Linux (AppImage + deb)
-        run: npm run build:linux -w desktop
+        working-directory: desktop
+        run: npx electron-builder --linux AppImage deb
       - name: Headless smoke test
-        run: npm run smoke -w desktop
+        working-directory: desktop
+        run: node smoke.mjs
       - uses: actions/upload-artifact@v4
         with:
           name: linux-desktop
@@ -65,14 +71,19 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with: { node-version: "20" }
-      - run: npm ci --include=dev
-      - name: Verify electron is installed
-        shell: bash
-        run: ls node_modules/electron/dist/version || (cd desktop && npm install --no-save electron@33.4.11)
+      - run: npm ci
       - run: npm run fixtures
       - run: npm run build:core
       - run: npm run build:web
-      - run: npm run build:win -w desktop
+      - name: Install desktop deps (standalone, not workspace)
+        working-directory: desktop
+        run: npm install --no-audit --no-fund
+      - name: Prepare renderer
+        working-directory: desktop
+        run: npm run prepare-renderer
+      - name: Build Electron Windows (nsis + zip)
+        working-directory: desktop
+        run: npx electron-builder --win nsis zip
       - uses: actions/upload-artifact@v4
         with:
           name: windows-desktop
@@ -87,14 +98,19 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with: { node-version: "20" }
-      - run: npm ci --include=dev
-      - name: Verify electron is installed
-        run: ls node_modules/electron/dist/version || (cd desktop && npm install --no-save electron@33.4.11)
+      - run: npm ci
       - run: npm run fixtures
       - run: npm run build:core
       - run: npm run build:web
+      - name: Install desktop deps (standalone, not workspace)
+        working-directory: desktop
+        run: npm install --no-audit --no-fund
+      - name: Prepare renderer
+        working-directory: desktop
+        run: npm run prepare-renderer
       - name: Build Electron macOS (unsigned dmg)
-        run: npm run build:mac -w desktop
+        working-directory: desktop
+        run: npx electron-builder --mac dmg
         env:
           CSC_IDENTITY_AUTO_DISCOVERY: "false"
       - uses: actions/upload-artifact@v4

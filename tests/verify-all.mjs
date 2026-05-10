@@ -58,8 +58,9 @@ async function webPlaywright() {
 }
 
 async function desktopHeadless() {
-  // Same engine as Electron renderer; we exercise the workspace export.
-  const { extractFromBuffer } = await import("@crrptoffcxtrctr/core");
+  // Same engine as Electron renderer; load the built core directly.
+  const bundle = pathToFileURL(resolve(repo, "core", "dist", "index.js")).href;
+  const { extractFromBuffer } = await import(bundle);
   return runAll(extractFromBuffer);
 }
 
