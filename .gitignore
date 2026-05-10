@@ -26,3 +26,23 @@ ehthumbs.db
 # Config with credentials
 config.php
 cookiefile
+
+# Node / cross-platform build (added v2.0.0)
+node_modules/
+dist/
+*.log
+desktop/renderer/
+mobile/www/
+mobile/android/
+mobile/ios/
+core/dist/
+
+# web/lib/ IS committed — the GH Pages workflow publishes web/ as-is, so the
+# built ES module bundle needs to be tracked.
+
+# Generated fixtures (regenerate with `npm run fixtures`)
+tests/fixtures/
+
+# Editor noise
+.vscode/
+.idea/

@@ -4,7 +4,9 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#0f0322">
-<title>Loading…</title>
+<title>Corrupt Office Extractor</title>
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" type="image/svg+xml" href="icon.svg">
 <style>
   :root { color-scheme: dark; }
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -14,161 +16,206 @@
     background: radial-gradient(ellipse at top, #0f0322 0%, #08010f 70%);
     color: #f5f3ff;
     -webkit-font-smoothing: antialiased;
-    line-height: 1.6;
+    line-height: 1.5;
+    min-height: 100vh;
   }
   .orbs { position: fixed; inset: 0; overflow: hidden; pointer-events: none; z-index: 0; }
-  .orb { position: absolute; border-radius: 50%; filter: blur(80px); opacity: 0.45; animation: float 18s ease-in-out infinite; }
+  .orb { position: absolute; border-radius: 50%; filter: blur(80px); opacity: 0.45; }
   .o1 { width: 480px; height: 480px; background: #ff2e93; top: -140px; left: -120px; }
-  .o2 { width: 420px; height: 420px; background: #7c3aed; bottom: -140px; right: -100px; animation-delay: -6s; }
-  .o3 { width: 360px; height: 360px; background: #22d3ee; top: 40%; left: 45%; opacity: 0.3; animation-delay: -12s; }
-  @keyframes float {
-    0%,100% { transform: translate(0,0) scale(1); }
-    33% { transform: translate(40px,-30px) scale(1.08); }
-    66% { transform: translate(-30px,30px) scale(.95); }
-  }
-  .wrap {
-    position: relative; z-index: 1;
-    max-width: 760px; margin: 0 auto; padding: 56px 24px 80px;
-  }
-  header { margin-bottom: 36px; }
-  h1#title {
-    font-size: 2.6rem; font-weight: 800; letter-spacing: -0.02em;
+  .o2 { width: 420px; height: 420px; background: #7c3aed; bottom: -140px; right: -100px; }
+  .wrap { position: relative; z-index: 1; max-width: 880px; margin: 0 auto; padding: 40px 20px 60px; }
+  h1 {
+    font-size: 2.4rem; font-weight: 800; letter-spacing: -0.02em;
     background: linear-gradient(135deg, #ff2e93 0%, #22d3ee 100%);
     -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
     margin-bottom: 6px;
   }
-  p#desc { color: rgba(245,243,255,0.7); font-size: 1.05rem; }
-  .links {
-    display: flex; flex-wrap: wrap; gap: 10px; margin: 22px 0 32px;
+  .tagline { color: rgba(245,243,255,0.7); margin-bottom: 28px; }
+  .drop {
+    border: 2px dashed rgba(255,255,255,0.25); border-radius: 16px;
+    padding: 48px 24px; text-align: center; cursor: pointer;
+    background: rgba(20,10,40,0.5); transition: border-color .2s, background .2s;
   }
-  .links a {
-    display: inline-flex; align-items: center; gap: 6px;
-    padding: 10px 16px; text-decoration: none; color: #f5f3ff;
-    background: rgba(20,10,40,0.6); border: 1px solid rgba(255,255,255,0.12);
-    border-radius: 999px; font-size: 0.9rem; font-weight: 600;
-    transition: transform .15s, border-color .15s, background .15s;
-    backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+  .drop.over { border-color: #22d3ee; background: rgba(34,211,238,0.08); }
+  .drop p { color: rgba(245,243,255,0.85); margin-bottom: 6px; }
+  .drop small { color: rgba(245,243,255,0.5); }
+  .drop input { display: none; }
+  .results { margin-top: 28px; display: none; }
+  .results.visible { display: block; }
+  .summary {
+    padding: 18px 22px; background: rgba(20,10,40,0.6);
+    border: 1px solid rgba(255,255,255,0.1); border-radius: 14px;
+    margin-bottom: 18px;
   }
-  .links a:hover { transform: translateY(-1px); border-color: #7c3aed; background: rgba(124,58,237,0.18); }
-  .card {
-    padding: 32px 28px;
-    background: rgba(20,10,40,0.55);
-    border: 1px solid rgba(255,255,255,0.1);
-    border-radius: 22px;
-    backdrop-filter: blur(14px) saturate(1.4); -webkit-backdrop-filter: blur(14px) saturate(1.4);
-    box-shadow: 0 20px 60px rgba(0,0,0,0.4);
-  }
-  .card h1, .card h2, .card h3, .card h4 { margin: 1.4em 0 0.5em; line-height: 1.25; }
-  .card h1:first-child, .card h2:first-child { margin-top: 0; }
-  .card h1 { font-size: 1.7rem; }
-  .card h2 { font-size: 1.4rem; border-bottom: 1px solid rgba(255,255,255,0.08); padding-bottom: 6px; }
-  .card h3 { font-size: 1.15rem; color: rgba(245,243,255,0.9); }
-  .card p, .card ul, .card ol { margin: 0.6em 0; color: rgba(245,243,255,0.85); }
-  .card a { color: #22d3ee; text-decoration: none; }
-  .card a:hover { text-decoration: underline; }
-  .card code {
-    background: rgba(255,46,147,0.15); color: #ffd166;
-    padding: 2px 6px; border-radius: 5px; font-size: 0.92em;
+  .summary .row { display: flex; gap: 14px; flex-wrap: wrap; font-size: 0.92rem; }
+  .summary .row span { color: rgba(245,243,255,0.7); }
+  .summary .row b { color: #22d3ee; }
+  .pane {
+    background: rgba(0,0,0,0.4); border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 12px; padding: 16px 18px;
+    max-height: 360px; overflow: auto;
     font-family: ui-monospace, 'SF Mono', Menlo, monospace;
+    font-size: 0.86rem; white-space: pre-wrap; word-break: break-word;
   }
-  .card pre {
-    background: rgba(0,0,0,0.4); padding: 14px 16px; border-radius: 10px;
-    overflow-x: auto; border: 1px solid rgba(255,255,255,0.06);
-  }
-  .card pre code { background: none; color: #e5e7eb; padding: 0; }
-  .card ul, .card ol { padding-left: 1.6em; }
-  .card li { margin: 0.25em 0; }
-  .card blockquote {
-    margin: 0.8em 0; padding: 8px 16px;
-    border-left: 3px solid #7c3aed; color: rgba(245,243,255,0.7);
-  }
-  .card img { max-width: 100%; height: auto; border-radius: 8px; }
-  .card table { border-collapse: collapse; margin: 0.8em 0; }
-  .card th, .card td { padding: 6px 12px; border: 1px solid rgba(255,255,255,0.1); }
-  .card hr { border: none; border-top: 1px solid rgba(255,255,255,0.08); margin: 1.4em 0; }
-  footer { margin-top: 32px; text-align: center; color: rgba(245,243,255,0.4); font-size: 0.82rem; }
+  .pane h3 { font-family: 'Inter', sans-serif; margin-bottom: 8px; color: #ff2e93; font-size: 0.95rem; }
+  .images { display: grid; grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: 10px; margin-top: 10px; }
+  .images img { width: 100%; aspect-ratio: 1; object-fit: cover; border-radius: 8px; background: #111; }
+  .warnings { color: #ffd166; }
+  .err { color: #ff7777; }
+  footer { margin-top: 36px; text-align: center; color: rgba(245,243,255,0.4); font-size: 0.82rem; }
   footer a { color: rgba(245,243,255,0.6); }
-  .loading { color: rgba(245,243,255,0.5); font-style: italic; }
+  .grid { display: grid; gap: 14px; grid-template-columns: 1fr; }
+  @media (min-width: 720px) { .grid { grid-template-columns: 1fr 1fr; } }
+  button {
+    appearance: none; border: 1px solid rgba(255,255,255,0.15);
+    background: rgba(124,58,237,0.2); color: #f5f3ff;
+    padding: 8px 16px; border-radius: 999px; cursor: pointer;
+    font-size: 0.88rem; font-weight: 600;
+  }
+  button:hover { background: rgba(124,58,237,0.35); }
 </style>
 </head>
 <body>
 <div class="orbs" aria-hidden="true">
-  <div class="orb o1"></div><div class="orb o2"></div><div class="orb o3"></div>
+  <div class="orb o1"></div><div class="orb o2"></div>
 </div>
 <div class="wrap">
   <header>
-    <h1 id="title">Loading…</h1>
-    <p id="desc"></p>
-    <nav class="links" id="links"></nav>
+    <h1>Corrupt Office Extractor</h1>
+    <p class="tagline">Recover text and images from broken DOCX, XLSX, and PPTX files. Runs entirely in your browser — your file never leaves your device.</p>
   </header>
-  <main class="card" id="readme">
-    <p class="loading">Fetching README…</p>
-  </main>
+
+  <label class="drop" id="drop">
+    <input type="file" id="file" accept=".docx,.xlsx,.pptx,.zip" />
+    <p><b>Drop a corrupt Office file here</b> or click to browse</p>
+    <small>.docx · .xlsx · .pptx — up to 100 MB · 100% client-side</small>
+  </label>
+
+  <section class="results" id="results">
+    <div class="summary" id="summary"></div>
+    <div class="grid">
+      <div class="pane">
+        <h3>Recovered text</h3>
+        <div id="text"></div>
+        <p style="margin-top:10px"><button id="dl-text">Download as .txt</button></p>
+      </div>
+      <div class="pane">
+        <h3>Entries found</h3>
+        <div id="entries"></div>
+      </div>
+    </div>
+    <div class="pane" id="images-pane" style="margin-top:14px; display:none">
+      <h3>Embedded images</h3>
+      <div class="images" id="images"></div>
+    </div>
+    <div class="pane warnings" id="warnings-pane" style="margin-top:14px; display:none">
+      <h3 style="color:#ffd166">Warnings</h3>
+      <div id="warnings"></div>
+    </div>
+  </section>
+
   <footer>
-    <p><a id="src" href="#">View source on GitHub</a></p>
+    <p>v2.0.0 · <a href="https://github.com/socrtwo/crrptoffcxtrctr-SF" target="_blank" rel="noopener">Source on GitHub</a></p>
   </footer>
 </div>
-<script src="https://cdn.jsdelivr.net/npm/marked@12/marked.min.js"></script>
-<script>
-(async function () {
-  const path = location.pathname.replace(/\/$/, '').split('/');
-  const owner = path[1] === '' ? 'socrtwo' : (window.GH_OWNER || 'socrtwo');
-  // Path on Pages is /<repo>/[version]/. Repo is the second segment.
-  const repo = path[1] || (location.hostname.split('.')[0]);
 
-  document.title = repo;
-  document.getElementById('title').textContent = repo;
+<script type="module">
+  import { extractFromBuffer } from "./lib/core.js";
 
-  const repoUrl = `https://github.com/${owner}/${repo}`;
-  document.getElementById('src').href = repoUrl;
+  const dropEl = document.getElementById("drop");
+  const fileEl = document.getElementById("file");
+  const resultsEl = document.getElementById("results");
+  const summaryEl = document.getElementById("summary");
+  const textEl = document.getElementById("text");
+  const entriesEl = document.getElementById("entries");
+  const warnPane = document.getElementById("warnings-pane");
+  const warnEl = document.getElementById("warnings");
+  const imgPane = document.getElementById("images-pane");
+  const imgEl = document.getElementById("images");
+  const dlText = document.getElementById("dl-text");
 
-  // Fetch repo metadata (description) and README in parallel
-  const headers = { 'Accept': 'application/vnd.github+json' };
-  try {
-    const meta = await fetch(`https://api.github.com/repos/${owner}/${repo}`, { headers }).then(r => r.json());
-    if (meta && meta.description) document.getElementById('desc').textContent = meta.description;
+  let lastText = "";
+  let lastFilename = "extracted";
 
-    const links = document.getElementById('links');
-    const mk = (href, label, emoji) => {
-      const a = document.createElement('a');
-      a.href = href; a.target = '_blank'; a.rel = 'noopener';
-      a.textContent = (emoji ? emoji + '  ' : '') + label;
-      links.appendChild(a);
-    };
-    mk(repoUrl, 'Source', '📂');
-    mk(repoUrl + '/releases', 'Releases', '⬇');
-    mk(repoUrl + '/issues', 'Issues', '💬');
-  } catch (e) { /* ignore */ }
-
-  // README — try a few branches & casings
-  const branches = ['main', 'master'];
-  const names = ['README.md', 'readme.md', 'README.MD', 'Readme.md'];
-  let md = null;
-  for (const b of branches) {
-    for (const n of names) {
-      const url = `https://raw.githubusercontent.com/${owner}/${repo}/${b}/${n}`;
-      try {
-        const r = await fetch(url);
-        if (r.ok) { md = await r.text(); break; }
-      } catch (e) {}
-    }
-    if (md) break;
+  async function handleFile(file) {
+    if (!file) return;
+    lastFilename = file.name.replace(/\.(docx|xlsx|pptx|zip)$/i, "") || "extracted";
+    const ab = await file.arrayBuffer();
+    const result = extractFromBuffer(new Uint8Array(ab));
+    render(result, file);
   }
 
-  const readmeEl = document.getElementById('readme');
-  if (md) {
-    marked.setOptions({ breaks: false, gfm: true });
-    readmeEl.innerHTML = marked.parse(md);
-    // make all README links open in new tab
-    readmeEl.querySelectorAll('a').forEach(a => {
-      if (a.href && !a.href.startsWith(location.origin)) {
-        a.target = '_blank'; a.rel = 'noopener';
+  function render(r, file) {
+    resultsEl.classList.add("visible");
+    summaryEl.innerHTML = `
+      <div class="row">
+        <span>File: <b>${escapeHtml(file.name)}</b></span>
+        <span>Size: <b>${(file.size / 1024).toFixed(1)} KB</b></span>
+        <span>Type: <b>${r.kind}</b></span>
+        <span>Entries: <b>${r.scan.entries.length}</b></span>
+        <span>Images: <b>${r.images.length}</b></span>
+      </div>`;
+
+    lastText = r.text || "(no text recovered)";
+    textEl.textContent = lastText;
+
+    entriesEl.innerHTML = r.scan.entries.map(e => {
+      const status = e.decompressionError
+        ? `<span class="err">⚠ ${escapeHtml(e.decompressionError)}</span>`
+        : (e.crcMismatch ? `<span class="warnings">CRC mismatch</span>` : "OK");
+      return `<div>${escapeHtml(e.name)} — ${e.uncompressedSize} B — ${status}</div>`;
+    }).join("");
+
+    if (r.images.length) {
+      imgPane.style.display = "block";
+      imgEl.innerHTML = "";
+      for (const img of r.images) {
+        const blob = new Blob([img.data]);
+        const url = URL.createObjectURL(blob);
+        const node = document.createElement("img");
+        node.src = url;
+        node.title = img.name;
+        node.alt = img.name;
+        imgEl.appendChild(node);
       }
-    });
-  } else {
-    readmeEl.innerHTML = '<p class="loading">No README found in this repository.</p>';
+    } else {
+      imgPane.style.display = "none";
+    }
+
+    if (r.scan.warnings.length) {
+      warnPane.style.display = "block";
+      warnEl.innerHTML = r.scan.warnings.map(w => `<div>• ${escapeHtml(w)}</div>`).join("");
+    } else {
+      warnPane.style.display = "none";
+    }
   }
-})();
+
+  function escapeHtml(s) {
+    return String(s).replace(/[&<>"']/g, c => ({ "&":"&amp;", "<":"&lt;", ">":"&gt;", '"':"&quot;", "'":"&#39;" }[c]));
+  }
+
+  dropEl.addEventListener("click", () => fileEl.click());
+  fileEl.addEventListener("change", e => handleFile(e.target.files[0]));
+  dropEl.addEventListener("dragover", e => { e.preventDefault(); dropEl.classList.add("over"); });
+  dropEl.addEventListener("dragleave", () => dropEl.classList.remove("over"));
+  dropEl.addEventListener("drop", e => {
+    e.preventDefault();
+    dropEl.classList.remove("over");
+    if (e.dataTransfer.files[0]) handleFile(e.dataTransfer.files[0]);
+  });
+  dlText.addEventListener("click", () => {
+    const blob = new Blob([lastText], { type: "text/plain" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = lastFilename + ".txt";
+    a.click();
+    URL.revokeObjectURL(url);
+  });
+
+  if ("serviceWorker" in navigator) {
+    navigator.serviceWorker.register("./sw.js").catch(() => {});
+  }
 </script>
 </body>
 </html>

@@ -1,0 +1,46 @@
+{
+  "name": "@crrptoffcxtrctr/desktop",
+  "version": "2.0.0",
+  "private": true,
+  "description": "Electron desktop wrapper for Windows, macOS, Linux, and ChromeOS (Crostini)",
+  "main": "main.cjs",
+  "license": "MIT",
+  "author": "socrtwo",
+  "scripts": {
+    "prepare-renderer": "node build-renderer.mjs",
+    "start": "npm run prepare-renderer && electron .",
+    "build": "npm run prepare-renderer && electron-builder",
+    "build:linux": "npm run prepare-renderer && electron-builder --linux AppImage deb",
+    "build:win": "npm run prepare-renderer && electron-builder --win nsis zip",
+    "build:mac": "npm run prepare-renderer && electron-builder --mac dmg",
+    "smoke": "node smoke.mjs"
+  },
+  "devDependencies": {
+    "electron": "^33.0.0",
+    "electron-builder": "^25.1.8"
+  },
+  "build": {
+    "appId": "com.socrtwo.crrptoffcxtrctr",
+    "productName": "Corrupt Office Extractor",
+    "directories": {
+      "output": "../dist/desktop"
+    },
+    "files": [
+      "main.cjs",
+      "preload.cjs",
+      "renderer/**/*"
+    ],
+    "linux": {
+      "target": ["AppImage", "deb"],
+      "category": "Office",
+      "icon": "renderer/icon.png"
+    },
+    "win": {
+      "target": [{ "target": "nsis", "arch": ["x64"] }, { "target": "zip", "arch": ["x64"] }]
+    },
+    "mac": {
+      "target": ["dmg"],
+      "category": "public.app-category.productivity"
+    }
+  }
+}

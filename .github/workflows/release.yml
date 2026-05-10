@@ -1,0 +1,152 @@
+name: Build & release cross-platform artifacts
+
+on:
+  push:
+    tags: ["v*"]
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: "Tag to attach artifacts to (e.g. v2.0.0)"
+        required: true
+
+permissions:
+  contents: write
+
+jobs:
+  fixtures-and-core:
+    name: Fixtures + core tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+      - run: npm ci
+      - run: npm run fixtures
+      - run: npm test
+      - run: npm run build:core
+      - run: npm run build:web
+      - name: Zip web bundle
+        run: |
+          cd dist/web && zip -r ../../web-${{ github.ref_name }}.zip . && cd -
+      - uses: actions/upload-artifact@v4
+        with:
+          name: web
+          path: web-*.zip
+
+  desktop-linux:
+    needs: fixtures-and-core
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: "20" }
+      - run: npm ci
+      - run: npm run fixtures
+      - run: npm run build:core
+      - run: npm run build:web
+      - name: Build Electron Linux (AppImage + deb)
+        run: npm run build:linux -w desktop
+      - name: Headless smoke test
+        run: npm run smoke -w desktop
+      - uses: actions/upload-artifact@v4
+        with:
+          name: linux-desktop
+          path: |
+            dist/desktop/*.AppImage
+            dist/desktop/*.deb
+
+  desktop-windows:
+    needs: fixtures-and-core
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: "20" }
+      - run: npm ci
+      - run: npm run fixtures
+      - run: npm run build:core
+      - run: npm run build:web
+      - run: npm run build:win -w desktop
+      - uses: actions/upload-artifact@v4
+        with:
+          name: windows-desktop
+          path: |
+            dist/desktop/*.exe
+            dist/desktop/*.zip
+
+  desktop-mac:
+    needs: fixtures-and-core
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: "20" }
+      - run: npm ci
+      - run: npm run fixtures
+      - run: npm run build:core
+      - run: npm run build:web
+      - name: Build Electron macOS (unsigned dmg)
+        run: npm run build:mac -w desktop
+        env:
+          CSC_IDENTITY_AUTO_DISCOVERY: "false"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: mac-desktop
+          path: dist/desktop/*.dmg
+
+  android:
+    needs: fixtures-and-core
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: "20" }
+      - uses: actions/setup-java@v4
+        with:
+          distribution: "temurin"
+          java-version: "21"
+      - run: npm ci
+      - run: npm run fixtures
+      - run: npm run build:core
+      - run: npm run build:web
+      - name: Generate native android project
+        working-directory: mobile
+        run: |
+          if [ ! -d android ]; then
+            npx --yes cap add android
+          fi
+          npm run sync
+      - name: Build debug APK
+        working-directory: mobile/android
+        run: ./gradlew assembleDebug
+      - uses: actions/upload-artifact@v4
+        with:
+          name: android-apk
+          path: mobile/android/app/build/outputs/apk/debug/*.apk
+
+  release:
+    needs: [fixtures-and-core, desktop-linux, desktop-windows, desktop-mac, android]
+    runs-on: ubuntu-latest
+    if: startsWith(github.ref, 'refs/tags/')
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+      - name: Show artifacts
+        run: find artifacts -type f
+      - name: Upload to release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: artifacts/**/*
+          fail_on_unmatched_files: false
+          generate_release_notes: true
+
+  # iOS isn't built in CI: codesigning + Apple Developer cert are required.
+  # Run locally per tests/MANUAL.md after pulling the tag, then attach the
+  # resulting .ipa to the release manually.
+  ios-doc:
+    name: iOS (manual — see tests/MANUAL.md)
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo "iOS build is documented in tests/MANUAL.md; not run in CI."
