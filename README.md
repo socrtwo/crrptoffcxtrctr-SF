@@ -25,9 +25,9 @@ app, and Capacitor mobile wrapper — your file is never uploaded anywhere.
 | Platform | Format | Engine | How it's built |
 | --- | --- | --- | --- |
 | **Web (any browser)** | hosted SPA + installable PWA | TS core + esbuild bundle | `npm run build:web` |
-| **Windows 10/11 (x64)** | `.exe` installer + portable `.zip` | Electron + TS core | `npm run build:win -w desktop` |
-| **macOS 12+ (Intel & Apple Silicon)** | unsigned `.dmg` | Electron + TS core | `npm run build:mac -w desktop` |
-| **Linux (Ubuntu / Debian / Fedora)** | `.AppImage` + `.deb` | Electron + TS core | `npm run build:linux -w desktop` |
+| **Windows 10/11 (x64)** | `.exe` installer + portable `.zip` | Electron + TS core | `cd desktop && npm install && npx electron-builder --win nsis zip` |
+| **macOS 12+ (Intel & Apple Silicon)** | unsigned `.dmg` | Electron + TS core | `cd desktop && npm install && npx electron-builder --mac dmg` |
+| **Linux (Ubuntu / Debian / Fedora)** | `.AppImage` + `.deb` | Electron + TS core | `cd desktop && npm install && npx electron-builder --linux AppImage deb` |
 | **ChromeOS** | install the PWA, or sideload the `.deb` under Crostini | Same Linux package + PWA | (see above) |
 | **Android 8+ (API 26+)** | unsigned debug `.apk` | Capacitor + TS core | `npm run build:android-debug -w mobile` |
 | **iOS 15+** | Xcode project (signed `.ipa` is your responsibility) | Capacitor + TS core | see [`tests/MANUAL.md`](tests/MANUAL.md) |
@@ -88,7 +88,7 @@ npm run fixtures      # generate corrupt test files
 npm test              # run the core test suite
 npm run build:core    # compile the TS core
 npm run build:web     # bundle the web SPA into dist/web/
-npm run build -w desktop   # build Electron artifacts (current OS)
+npm run build:desktop # build Electron artifacts for the current OS
 ```
 
 ## Testing with corrupt samples

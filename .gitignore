@@ -37,6 +37,10 @@ mobile/android/
 mobile/ios/
 core/dist/
 
+# desktop/ is its own non-workspace package; commit its lockfile so CI's
+# `npm install` is reproducible.
+!desktop/package-lock.json
+
 # web/lib/ IS committed — the GH Pages workflow publishes web/ as-is, so the
 # built ES module bundle needs to be tracked.
 

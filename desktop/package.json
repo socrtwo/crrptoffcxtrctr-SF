@@ -23,6 +23,8 @@
     "appId": "com.socrtwo.crrptoffcxtrctr",
     "productName": "Corrupt Office Extractor",
     "electronVersion": "33.4.11",
+    "npmRebuild": false,
+    "buildDependenciesFromSource": false,
     "directories": {
       "output": "../dist/desktop"
     },

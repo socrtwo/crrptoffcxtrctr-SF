@@ -4,11 +4,14 @@
 // Linux runners where there's no display.
 import { readFileSync } from "node:fs";
 import { resolve, dirname } from "node:path";
-import { fileURLToPath } from "node:url";
-import { extractFromBuffer } from "@crrptoffcxtrctr/core";
+import { fileURLToPath, pathToFileURL } from "node:url";
 
 const here = dirname(fileURLToPath(import.meta.url));
 const repo = resolve(here, "..");
+// Load the same bundled core that the Electron renderer loads via
+// renderer/lib/core.js — this validates the actual shipped artifact.
+const bundle = pathToFileURL(resolve(here, "renderer", "lib", "core.js")).href;
+const { extractFromBuffer } = await import(bundle);
 const fixtures = [
   { file: "truncated.docx", marker: "HELLO_FIXTURE_1" },
   { file: "bad-central-dir.xlsx", marker: "HELLO_FIXTURE_2" },
