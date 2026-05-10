@@ -41,7 +41,9 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with: { node-version: "20" }
-      - run: npm ci
+      - run: npm ci --include=dev
+      - name: Verify electron is installed
+        run: ls node_modules/electron/dist/version || (cd desktop && npm install --no-save electron@33.4.11)
       - run: npm run fixtures
       - run: npm run build:core
       - run: npm run build:web
@@ -63,7 +65,10 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with: { node-version: "20" }
-      - run: npm ci
+      - run: npm ci --include=dev
+      - name: Verify electron is installed
+        shell: bash
+        run: ls node_modules/electron/dist/version || (cd desktop && npm install --no-save electron@33.4.11)
       - run: npm run fixtures
       - run: npm run build:core
       - run: npm run build:web
@@ -82,7 +87,9 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with: { node-version: "20" }
-      - run: npm ci
+      - run: npm ci --include=dev
+      - name: Verify electron is installed
+        run: ls node_modules/electron/dist/version || (cd desktop && npm install --no-save electron@33.4.11)
       - run: npm run fixtures
       - run: npm run build:core
       - run: npm run build:web

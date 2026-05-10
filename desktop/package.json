@@ -16,12 +16,13 @@
     "smoke": "node smoke.mjs"
   },
   "devDependencies": {
-    "electron": "^33.0.0",
+    "electron": "33.4.11",
     "electron-builder": "^25.1.8"
   },
   "build": {
     "appId": "com.socrtwo.crrptoffcxtrctr",
     "productName": "Corrupt Office Extractor",
+    "electronVersion": "33.4.11",
     "directories": {
       "output": "../dist/desktop"
     },
