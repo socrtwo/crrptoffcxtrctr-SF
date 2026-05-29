@@ -1,4 +1,4 @@
-import { inflateSync, Inflate } from "fflate";
+import { immortalInflate } from "./immortal-inflate.js";
 
 export interface ZipEntry {
   name: string;
@@ -64,42 +64,6 @@ function crc32(buf: Uint8Array): number {
   let c = 0xffffffff;
   for (let i = 0; i < buf.length; i++) c = CRC_TABLE[(c ^ buf[i]) & 0xff] ^ (c >>> 8);
   return (c ^ 0xffffffff) >>> 0;
-}
-
-function inflateRawSync(data: Uint8Array): Uint8Array {
-  // fflate's inflateSync auto-detects raw deflate vs zlib-wrapped streams,
-  // which is what zip entries contain (raw deflate, no zlib header).
-  return inflateSync(data);
-}
-
-/**
- * Streaming inflater: pushes the data without marking the final chunk so
- * fflate doesn't error out when the stream is truncated. Returns whatever
- * decompressed bytes it managed to produce.
- */
-function inflatePartial(data: Uint8Array): Uint8Array {
-  const chunks: Uint8Array[] = [];
-  const inf = new Inflate((chunk) => {
-    chunks.push(chunk);
-  });
-  try {
-    // Feed in moderate-sized chunks. If push throws, we still keep what we got.
-    const STEP = 4096;
-    for (let i = 0; i < data.length; i += STEP) {
-      inf.push(data.subarray(i, Math.min(i + STEP, data.length)), false);
-    }
-  } catch {
-    /* truncated stream — keep what we already got */
-  }
-  let total = 0;
-  for (const c of chunks) total += c.length;
-  const out = new Uint8Array(total);
-  let off = 0;
-  for (const c of chunks) {
-    out.set(c, off);
-    off += c.length;
-  }
-  return out;
 }
 
 function decodeName(raw: Uint8Array, utf8: boolean): string {
@@ -190,27 +154,28 @@ export function scanZip(buf: Uint8Array, opts: { decompress?: boolean } = {}): S
 
     if (decompress) {
       const raw = buf.subarray(dataOffset, dataEnd);
-      try {
-        if (method === 0) {
-          entry.data = raw.slice();
-        } else if (method === 8) {
-          entry.data = inflateRawSync(raw);
+      if (method === 0) {
+        entry.data = raw.slice();
+      } else if (method === 8) {
+        // Fault-tolerant inflate: never throws, returns whatever it could
+        // decode plus an `isCorrupt` flag for truncated/damaged DEFLATE.
+        const { data: inflated, isCorrupt } = immortalInflate(raw);
+        if (inflated.length > 0) {
+          entry.data = inflated;
+          if (isCorrupt) {
+            entry.decompressionError = `Partial recovery (${inflated.length} bytes): corrupt or truncated DEFLATE stream`;
+          }
         } else {
-          entry.decompressionError = `Unsupported compression method ${method}`;
+          entry.decompressionError = isCorrupt
+            ? "Corrupt or truncated DEFLATE stream (no bytes recovered)"
+            : "Empty DEFLATE stream";
         }
-        if (entry.data && crc !== 0) {
-          const actual = crc32(entry.data);
-          if (actual !== crc) entry.crcMismatch = true;
-        }
-      } catch (e) {
-        entry.decompressionError = (e as Error).message;
-        // Best effort: stream-inflate without marking the final chunk so the
-        // decoder yields whatever it already produced before truncation.
-        const partial = inflatePartial(raw);
-        if (partial.length > 0) {
-          entry.data = partial;
-          entry.decompressionError = `Partial recovery (${partial.length} bytes): ${entry.decompressionError}`;
-        }
+      } else {
+        entry.decompressionError = `Unsupported compression method ${method}`;
+      }
+      if (entry.data && crc !== 0) {
+        const actual = crc32(entry.data);
+        if (actual !== crc) entry.crcMismatch = true;
       }
     }
 

@@ -1,4 +1,4 @@
-// Bundle the TypeScript core (and its fflate dep) into a single ES module
+// Bundle the TypeScript core into a single ES module
 // the browser can <script type="module">. Output goes to web/lib/core.js
 // and is mirrored into dist/web/ for the release zip.
 import { build } from "esbuild";
