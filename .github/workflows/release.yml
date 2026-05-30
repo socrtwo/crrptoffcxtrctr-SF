@@ -148,8 +148,86 @@ jobs:
           name: android-apk
           path: mobile/android/app/build/outputs/apk/debug/*.apk
 
+  chromeos:
+    name: ChromeOS (PWA zip)
+    needs: fixtures-and-core
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: "20" }
+      - run: npm ci
+      - run: npm run fixtures
+      - run: npm run build:core
+      - run: npm run build:web
+      - name: Package ChromeOS PWA bundle
+        run: |
+          rm -rf _chromeos && mkdir -p _chromeos/app
+          cp -r dist/web/. _chromeos/app/
+          {
+            echo "Corrupt Office Extractor - ChromeOS"
+            echo ""
+            echo "ChromeOS treats PWAs as first-class apps; no APK or extension needed."
+            echo ""
+            echo "Install (recommended):"
+            echo "  1. Open the hosted app in Chrome on your Chromebook."
+            echo "  2. Click the install icon in the address bar (or menu -> Install)."
+            echo "  3. The app appears in your launcher and works offline."
+            echo ""
+            echo "Run from this bundle (offline): unzip into Files, open app/index.html in Chrome."
+            echo "Play-Store Chromebooks can alternatively sideload the Android APK."
+          } > _chromeos/INSTALL-CHROMEOS.txt
+          ( cd _chromeos && zip -r ../chromeos-${{ github.ref_name }}.zip . )
+          ls -la chromeos-*.zip
+      - uses: actions/upload-artifact@v4
+        with:
+          name: chromeos
+          path: chromeos-*.zip
+
+  # iOS native build needs Apple codesigning, so CI ships the installable PWA
+  # (Safari -> Share -> Add to Home Screen) as the iOS deliverable. The native
+  # .ipa route remains documented in tests/MANUAL.md for developers with a cert.
+  ios:
+    name: iOS (PWA zip)
+    needs: fixtures-and-core
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: "20" }
+      - run: npm ci
+      - run: npm run fixtures
+      - run: npm run build:core
+      - run: npm run build:web
+      - name: Package iOS PWA bundle
+        run: |
+          rm -rf _ios && mkdir -p _ios/app
+          cp -r dist/web/. _ios/app/
+          {
+            echo "Corrupt Office Extractor - iOS / iPadOS"
+            echo ""
+            echo "iOS installs this app as a Progressive Web App (no App Store or"
+            echo "Apple Developer account needed for the PWA route)."
+            echo ""
+            echo "Install (recommended):"
+            echo "  1. Open the hosted app in Safari on your iPhone/iPad."
+            echo "     (Apple restricts PWA install to Safari, not Chrome on iOS.)"
+            echo "  2. Tap the Share button."
+            echo "  3. Tap \"Add to Home Screen\"."
+            echo "  4. The app runs standalone and works offline."
+            echo ""
+            echo "Native .ipa build (Capacitor + Xcode + Apple cert) is documented"
+            echo "in tests/MANUAL.md."
+          } > _ios/INSTALL-IOS.txt
+          ( cd _ios && zip -r ../ios-${{ github.ref_name }}.zip . )
+          ls -la ios-*.zip
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ios
+          path: ios-*.zip
+
   release:
-    needs: [fixtures-and-core, desktop-linux, desktop-windows, desktop-mac, android]
+    needs: [fixtures-and-core, desktop-linux, desktop-windows, desktop-mac, android, chromeos, ios]
     runs-on: ubuntu-latest
     if: startsWith(github.ref, 'refs/tags/')
     steps:
@@ -165,11 +243,6 @@ jobs:
           fail_on_unmatched_files: false
           generate_release_notes: true
 
-  # iOS isn't built in CI: codesigning + Apple Developer cert are required.
-  # Run locally per tests/MANUAL.md after pulling the tag, then attach the
-  # resulting .ipa to the release manually.
-  ios-doc:
-    name: iOS (manual — see tests/MANUAL.md)
-    runs-on: ubuntu-latest
-    steps:
-      - run: echo "iOS build is documented in tests/MANUAL.md; not run in CI."
+  # Native iOS .ipa (Capacitor + Xcode) still needs Apple codesigning and is
+  # documented in tests/MANUAL.md. The shipped iOS deliverable above is the
+  # installable PWA, so developers with a cert can additionally attach an .ipa.
