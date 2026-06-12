@@ -148,8 +148,63 @@ jobs:
           name: android-apk
           path: mobile/android/app/build/outputs/apk/debug/*.apk
 
+  pwa-bundles:
+    name: ChromeOS + iOS PWA bundles
+    needs: fixtures-and-core
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: "20" }
+      - run: npm ci
+      - run: npm run fixtures
+      - run: npm run build:core
+      - run: npm run build:web
+      - name: Build ChromeOS bundle
+        run: |
+          rm -rf pkg && mkdir -p pkg
+          cp -r dist/web/. pkg/
+          printf '%s\n' \
+            '# crrptoffcxtrctr on ChromeOS' \
+            '' \
+            '## Recommended: install the hosted app' \
+            '' \
+            '1. Open https://socrtwo.github.io/crrptoffcxtrctr-SF/ in Chrome.' \
+            '2. Click the Install icon in the address bar (right-hand side).' \
+            '3. The app is added to your launcher and runs in its own window.' \
+            '' \
+            '## Offline alternative' \
+            '' \
+            'Unzip this archive and open `index.html` in Chrome.' \
+            > pkg/INSTALL.md
+          cd pkg && zip -r ../crrptoffcxtrctr-chromeos-${{ github.ref_name }}.zip . && cd -
+      - name: Build iOS bundle
+        run: |
+          rm -rf pkg && mkdir -p pkg
+          cp -r dist/web/. pkg/
+          printf '%s\n' \
+            '# crrptoffcxtrctr on iOS / iPadOS' \
+            '' \
+            '## Add the hosted app to your Home Screen' \
+            '' \
+            '1. Open https://socrtwo.github.io/crrptoffcxtrctr-SF/ in Safari.' \
+            '2. Tap the Share button.' \
+            '3. Tap "Add to Home Screen", then "Add".' \
+            '4. Launch the app from the Home Screen icon like a native app.' \
+            '' \
+            'A native iOS build requires Xcode and an Apple Developer' \
+            'certificate; see tests/MANUAL.md in the repository.' \
+            > pkg/INSTALL.md
+          cd pkg && zip -r ../crrptoffcxtrctr-ios-${{ github.ref_name }}.zip . && cd -
+      - uses: actions/upload-artifact@v4
+        with:
+          name: pwa-bundles
+          path: |
+            crrptoffcxtrctr-chromeos-*.zip
+            crrptoffcxtrctr-ios-*.zip
+
   release:
-    needs: [fixtures-and-core, desktop-linux, desktop-windows, desktop-mac, android]
+    needs: [fixtures-and-core, desktop-linux, desktop-windows, desktop-mac, android, pwa-bundles]
     runs-on: ubuntu-latest
     if: startsWith(github.ref, 'refs/tags/')
     steps:
