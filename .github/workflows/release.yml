@@ -16,6 +16,8 @@ jobs:
   fixtures-and-core:
     name: Fixtures + core tests
     runs-on: ubuntu-latest
+    env:
+      RELEASE_VERSION: ${{ github.event_name == 'workflow_dispatch' && inputs.tag || github.ref_name }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -28,7 +30,7 @@ jobs:
       - run: npm run build:web
       - name: Zip web bundle
         run: |
-          cd dist/web && zip -r ../../web-${{ github.ref_name }}.zip . && cd -
+          cd dist/web && zip -r "../../web-${RELEASE_VERSION}.zip" . && cd -
       - uses: actions/upload-artifact@v4
         with:
           name: web
@@ -152,6 +154,8 @@ jobs:
     name: ChromeOS + iOS PWA bundles
     needs: fixtures-and-core
     runs-on: ubuntu-latest
+    env:
+      RELEASE_VERSION: ${{ github.event_name == 'workflow_dispatch' && inputs.tag || github.ref_name }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -177,7 +181,7 @@ jobs:
             '' \
             'Unzip this archive and open `index.html` in Chrome.' \
             > pkg/INSTALL.md
-          cd pkg && zip -r ../crrptoffcxtrctr-chromeos-${{ github.ref_name }}.zip . && cd -
+          cd pkg && zip -r "../crrptoffcxtrctr-chromeos-${RELEASE_VERSION}.zip" . && cd -
       - name: Build iOS bundle
         run: |
           rm -rf pkg && mkdir -p pkg
@@ -195,7 +199,7 @@ jobs:
             'A native iOS build requires Xcode and an Apple Developer' \
             'certificate; see tests/MANUAL.md in the repository.' \
             > pkg/INSTALL.md
-          cd pkg && zip -r ../crrptoffcxtrctr-ios-${{ github.ref_name }}.zip . && cd -
+          cd pkg && zip -r "../crrptoffcxtrctr-ios-${RELEASE_VERSION}.zip" . && cd -
       - uses: actions/upload-artifact@v4
         with:
           name: pwa-bundles
@@ -206,7 +210,7 @@ jobs:
   release:
     needs: [fixtures-and-core, desktop-linux, desktop-windows, desktop-mac, android, pwa-bundles]
     runs-on: ubuntu-latest
-    if: startsWith(github.ref, 'refs/tags/')
+    if: startsWith(github.ref, 'refs/tags/') || github.event_name == 'workflow_dispatch'
     steps:
       - uses: actions/download-artifact@v4
         with:
@@ -216,6 +220,7 @@ jobs:
       - name: Upload to release
         uses: softprops/action-gh-release@v2
         with:
+          tag_name: ${{ github.event_name == 'workflow_dispatch' && inputs.tag || github.ref_name }}
           files: artifacts/**/*
           fail_on_unmatched_files: false
           generate_release_notes: true
