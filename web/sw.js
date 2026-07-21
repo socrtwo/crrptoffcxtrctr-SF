@@ -1,11 +1,12 @@
 // Minimal offline-first service worker for the Corrupt Office Extractor PWA.
-const CACHE = "crrptoffcxtrctr-v2";
+const CACHE = "crrptoffcxtrctr-v3";
 const ASSETS = [
   "./",
   "./index.html",
   "./manifest.webmanifest",
   "./icon.svg",
   "./lib/core.js",
+  "./s2-file-id.js",
 ];
 
 self.addEventListener("install", (event) => {
